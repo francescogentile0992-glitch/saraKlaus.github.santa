@@ -105,14 +105,14 @@
     }
 
     /* Mobile: mantiene stile della 2a immagine, ma migliora il taglio */
-    @media (max-width: 768px){
-  #stage video{
+ @media (max-width: 768px){
+  #video{
     object-fit: cover;
-
-    /* spostiamo l’inquadratura verso SINISTRA */
- object-position:20% 60%;
+    object-position: 50% 50%;
+    transform: scale(0.92);
+    transform-origin: center;
   }
-}
+}}
       .title{
         top:16%;
         font-size:36px;
