@@ -18,6 +18,7 @@
       overflow:hidden;
     }
 
+    /* schermata iniziale */
     .box{
       text-align:center;
       z-index:2;
@@ -37,7 +38,7 @@
       color:white;
     }
 
-    /* Video fullscreen */
+    /* stage fullscreen */
     #stage{
       position:fixed;
       inset:0;
@@ -53,6 +54,35 @@
       background:black;
     }
 
+    /* overlay testi */
+    .overlay{
+      position:fixed;
+      inset:0;
+      z-index:10000;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      pointer-events:none;
+    }
+
+    .title{
+      font-size:52px;
+      font-weight:900;
+      color:white;
+      text-shadow:0 0 22px rgba(0,0,0,.9);
+      margin-bottom:12px;
+    }
+
+    .subtitle{
+      font-size:28px;
+      font-weight:700;
+      color:white;
+      text-shadow:0 0 18px rgba(0,0,0,.9);
+    }
+
+    /* hint ESC */
     #hint{
       position:fixed;
       bottom:14px;
@@ -60,7 +90,7 @@
       font-size:12px;
       opacity:.6;
       display:none;
-      z-index:10000;
+      z-index:10001;
     }
   </style>
 </head>
@@ -73,24 +103,22 @@
     <button id="openBtn">🎁 Apri</button>
   </div>
 
-  <!-- VIDEO -->
- <div id="stage">
-  <video
-    id="video"
-    src="gif.gif.mp4"
-    autoplay
-    loop
-    muted
-    playsinline>
-  </video>
+  <!-- VIDEO + TESTI -->
+  <div id="stage">
+    <video
+      id="video"
+      src="gif.gif.mp4"
+      autoplay
+      loop
+      muted
+      playsinline>
+    </video>
 
-  <!-- TESTI SOPRA IL VIDEO -->
-  <div class="overlay">
-    <div class="title">🎄 BUON NATALE 🎄</div>
-    <div class="subtitle"> speriamo aiuti con la sciatica 🌈🐎</div>
+    <div class="overlay">
+      <div class="title">🎄 BUON NATALE 🎄</div>
+      <div class="subtitle">Speriamo aiuti con la sciatica 🌈🐎</div>
+    </div>
   </div>
-</div>
-
 
   <div id="hint">Tip: premi ESC per chiudere</div>
 
@@ -121,3 +149,4 @@
 
 </body>
 </html>
+
