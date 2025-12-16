@@ -23,7 +23,9 @@
       z-index:2;
     }
 
-    h1{margin-bottom:16px}
+    h1{
+      margin-bottom:16px;
+    }
 
     button{
       font-size:20px;
@@ -35,7 +37,7 @@
       color:white;
     }
 
-    /* GIF fullscreen */
+    /* Video fullscreen */
     #stage{
       position:fixed;
       inset:0;
@@ -44,10 +46,10 @@
       z-index:9999;
     }
 
-    #stage img{
+    #stage video{
       width:100vw;
       height:100vh;
-      object-fit:contain; /* cover se la vuoi a tutto schermo */
+      object-fit:contain; /* usa cover se vuoi riempire tutto */
       background:black;
     }
 
@@ -64,13 +66,23 @@
 </head>
 
 <body>
+
+  <!-- SCHERMATA INIZIALE -->
   <div class="box">
     <h1>Apri il tuo regalo 🎄</h1>
     <button id="openBtn">🎁 Apri</button>
   </div>
 
+  <!-- VIDEO -->
   <div id="stage">
-    <img src="gif.gif" alt="gif regalo">
+    <video
+      id="video"
+      src="gif.gif.mp4"
+      autoplay
+      loop
+      muted
+      playsinline>
+    </video>
   </div>
 
   <div id="hint">Tip: premi ESC per chiudere</div>
@@ -78,6 +90,7 @@
   <script>
     const openBtn = document.getElementById("openBtn");
     const stage = document.getElementById("stage");
+    const video = document.getElementById("video");
     const box = document.querySelector(".box");
     const hint = document.getElementById("hint");
 
@@ -85,6 +98,8 @@
       box.style.display = "none";
       stage.style.display = "block";
       hint.style.display = "block";
+      video.currentTime = 0;
+      video.play();
     });
 
     window.addEventListener("keydown", (e) => {
@@ -92,9 +107,10 @@
         stage.style.display = "none";
         box.style.display = "block";
         hint.style.display = "none";
+        video.pause();
       }
     });
   </script>
+
 </body>
 </html>
-
