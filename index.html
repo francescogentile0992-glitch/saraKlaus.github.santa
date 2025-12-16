@@ -74,6 +74,176 @@
 
     /* Horse (emoji) */
     #horse{
-      position:abso
+      position:absolute;
+      right:-220px;
+      top:55%;
+      transform:translateY(-50%);
+      font-size:120px;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,.5));
+      z-index:3;
+      user-select:none;
+    }
 
-      
+    /* Final message */
+    #msg{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:24px;
+      font-size:34px;
+      font-weight:800;
+      color:#0b0b0f;
+      opacity:0;
+      transition: opacity 700ms ease;
+      text-shadow: 0 2px 0 rgba(255,255,255,.35);
+      z-index:4;
+      user-select:none;
+      pointer-events:none;
+    }
+
+    #hint{
+      position:fixed;
+      bottom:14px;
+      left:14px;
+      font-size:12px;
+      opacity:.55;
+      z-index:10000;
+      display:none;
+      user-select:none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h1>Apri il tuo regalo 🎄</h1>
+    <button id="openBtn">🎁 Apri</button>
+  </div>
+
+  <div id="stage" aria-hidden="true">
+    <div id="fill"></div>
+    <div id="ribbon"></div>
+    <div id="horse">🐎</div>
+    <div id="msg">BUON NATALE! 🌈💨<br>Sei stato “pony-zzato” 😄</div>
+  </div>
+
+  <div id="hint">Tip: premi ESC per chiudere</div>
+
+  <script>
+    const openBtn = document.getElementById("openBtn");
+    const stage   = document.getElementById("stage");
+    const horse   = document.getElementById("horse");
+    const ribbon  = document.getElementById("ribbon");
+    const fill    = document.getElementById("fill");
+    const msg     = document.getElementById("msg");
+    const hint    = document.getElementById("hint");
+    const box     = document.querySelector(".box");
+
+    let anim = null;
+    let t0 = null;
+
+    function resetScene(){
+      stage.style.display = "none";
+      hint.style.display = "none";
+      box.style.display = "block";
+
+      // reset visuals
+      fill.style.opacity = "0";
+      msg.style.opacity = "0";
+
+      ribbon.style.width = "0px";
+      ribbon.style.height = "80px";
+      ribbon.style.borderRadius = "999px";
+      ribbon.style.right = "0";
+      ribbon.style.top = "50%";
+      ribbon.style.transform = "translateY(-50%)";
+
+      horse.style.right = "-220px";
+      horse.style.top = "55%";
+      horse.style.transform = "translateY(-50%)";
+
+      if (anim) cancelAnimationFrame(anim);
+      anim = null;
+    }
+
+    function start(){
+      // hide start UI
+      box.style.display = "none";
+      stage.style.display = "block";
+      hint.style.display = "block";
+
+      // reset state
+      fill.style.opacity = "0";
+      msg.style.opacity = "0";
+      ribbon.style.width = "0px";
+      ribbon.style.height = "80px";
+      ribbon.style.borderRadius = "999px";
+      ribbon.style.right = "0";
+      ribbon.style.transform = "translateY(-50%)";
+
+      horse.style.right = "-220px";
+      horse.style.top = "55%";
+      horse.style.transform = "translateY(-50%)";
+
+      t0 = performance.now();
+
+      function frame(ts){
+        const t = (ts - t0) / 1000;
+
+        const duration = 9; // più lento
+        const p = Math.min(1, t / duration);
+
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+
+        // cavallo: DESTRA -> SINISTRA (usando right)
+        const horseRight = -220 + (1 - p) * (W + 440);
+
+        // piccola oscillazione
+        const y = H * 0.55 + Math.sin(t * 5) * 6;
+
+        horse.style.right = horseRight + "px";
+        horse.style.top = y + "px";
+
+        // scia: cresce dal cavallo verso destra (persistente)
+        const ribbonWidth = Math.max(0, W - horseRight - 40);
+        ribbon.style.width = ribbonWidth + "px";
+        ribbon.style.top = (y + 25) + "px";
+
+        // glow leggero quando la scia è lunga
+        if (p > 0.4) fill.style.opacity = "0.35";
+
+        // fine -> riempi schermo
+        if (p >= 1){
+          ribbon.style.right = "0";
+          ribbon.style.top = "0";
+          ribbon.style.transform = "none";
+          ribbon.style.height = "100vh";
+          ribbon.style.width = "100vw";
+          ribbon.style.borderRadius = "0";
+
+          msg.style.opacity = "1";
+          anim = null;
+          return;
+        }
+
+        anim = requestAnimationFrame(frame);
+      }
+
+      anim = requestAnimationFrame(frame);
+    }
+
+    openBtn.addEventListener("click", start);
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") resetScene();
+    });
+
+    // start with clean state
+    resetScene();
+  </script>
+</body>
+</html>
