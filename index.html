@@ -5,16 +5,30 @@
   <title>🎁</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body{
-      margin:0;
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#0b0b0f;
-      color:white;
-      font-family:system-ui;
+   <body>
+  <div class="box">
+    <h1>Apri il tuo regalo 🎄</h1>
+
+    <button id="openBtn">🎁 Apri</button>
+
+    <div id="content" style="display:none; margin-top:20px">
+      <!-- SCEGLI SOLO UNO -->
+
+      <!-- GIF -->
+      <!-- <img src="INCOLLA_QUI_LA_GIF"> -->
+
+      <!-- VIDEO -->
+      <!-- <video src="INCOLLA_QUI_IL_VIDEO" autoplay loop muted playsinline controls></video> -->
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("openBtn").onclick = function(){
+      this.style.display = "none";
+      document.getElementById("content").style.display = "block";
     }
+  </script>
+</body>
     .box{
       width:90%;
       max-width:700px;
