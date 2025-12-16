@@ -1,164 +1,185 @@
 <!doctype html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<title>🎁</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <title>🎁</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-body{
-  margin:0;
-  background:#000;
-  font-family:system-ui;
-  overflow:hidden;
-}
+  <style>
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#0b0b0f;
+      color:white;
+      font-family:system-ui;
+      overflow:hidden;
+    }
 
-/* ---------- SCHERMATA INIZIALE ---------- */
-.box{
-  position:fixed;
-  inset:0;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  color:white;
-  z-index:2;
-}
+    /* Schermata iniziale */
+    .box{
+      text-align:center;
+      z-index:2;
+      padding:0 16px;
+    }
 
-.box h1{
-  margin-bottom:16px;
-}
+    h1{ margin:0 0 16px 0; }
 
-button{
-  font-size:20px;
-  padding:14px 28px;
-  border-radius:12px;
-  border:none;
-  cursor:pointer;
-  background:#e63946;
-  color:white;
-}
+    button{
+      font-size:20px;
+      padding:14px 28px;
+      border-radius:12px;
+      border:none;
+      cursor:pointer;
+      background:#e63946;
+      color:white;
+    }
 
-/* ---------- STAGE VIDEO ---------- */
-#stage{
-  position:fixed;
-  inset:0;
-  display:none;
-  background:black;
-  z-index:1;
-}
+    /* Stage fullscreen */
+    #stage{
+      position:fixed;
+      inset:0;
+      display:none;        /* IMPORTANTISSIMO: nascosto fino al click */
+      background:black;
+      z-index:9999;
+    }
 
-#stage video{
-  width:100vw;
-  height:100vh;
-  object-fit:contain;
-  background:black;
-  z-index:0;
-}
+    #stage video{
+      position:absolute;
+      inset:0;
+      width:100vw;
+      height:100vh;
 
-/* ---------- TESTI ---------- */
-.overlay{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  color:white;
-  text-align:center;
-  z-index:10;
-}
+      /* come la 2a immagine: pieno schermo */
+      object-fit:cover;
 
-.title{
-  position:absolute;
-  top:8%;
-  width:100%;
-  font-size:clamp(26px, 6vw, 48px);
-  font-weight:800;
-  text-shadow:0 4px 12px rgba(0,0,0,.6);
-}
+      /* calibratura: sposta l'inquadratura per tagliare meno il cavallo */
+      object-position: 55% 55%;
+      background:black;
+    }
 
-.subtitle{
-  position:absolute;
-  bottom:12%;
-  width:100%;
-  font-size:clamp(16px, 4.5vw, 26px);
-  font-weight:500;
-  text-shadow:0 3px 10px rgba(0,0,0,.6);
-}
+    /* Testi sopra il video (dentro lo stage, quindi NON appaiono prima) */
+    .overlay{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:10001;
+      text-align:center;
+      color:white;
+    }
 
-/* ---------- MOBILE: STRINGIAMO TUTTO ---------- */
-@media (max-width:768px){
-  .title{
-    top:6%;
-  }
+    .title{
+      position:absolute;
+      top:18%;
+      width:100%;
+      font-size:56px;
+      font-weight:900;
+      text-shadow:0 4px 16px rgba(0,0,0,.85);
+      padding:0 12px;
+      box-sizing:border-box;
+    }
 
-  .subtitle{
-    bottom:10%;
-  }
+    .subtitle{
+      position:absolute;
+      bottom:18%;
+      width:100%;
+      font-size:26px;
+      font-weight:700;
+      text-shadow:0 3px 14px rgba(0,0,0,.85);
+      padding:0 12px;
+      box-sizing:border-box;
+      opacity:.95;
+    }
 
-  #stage video{
-    object-fit:contain;
-    transform:scale(1.05);
-  }
-}
+    #hint{
+      position:fixed;
+      bottom:14px;
+      left:14px;
+      font-size:12px;
+      opacity:.6;
+      display:none;
+      z-index:10002;
+      color:white;
+    }
 
-/* ---------- HINT ---------- */
-#hint{
-  position:fixed;
-  bottom:10px;
-  left:10px;
-  font-size:12px;
-  opacity:.5;
-  color:white;
-  display:none;
-  z-index:20;
-}
-</style>
+    /* Mobile: mantiene stile della 2a immagine, ma migliora il taglio */
+    @media (max-width: 768px){
+      #stage video{
+        object-fit:cover;
+        /* ancora meno taglio: spostiamo un pelo verso sinistra e giù */
+        object-position: 62% 60%;
+      }
+
+      .title{
+        top:16%;
+        font-size:36px;
+      }
+
+      .subtitle{
+        bottom:16%;
+        font-size:18px;
+      }
+
+      /* su iPhone ESC non serve */
+      #hint{ display:none !important; }
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- SCHERMATA INIZIALE -->
-<div class="box">
-  <h1>Apri il tuo regalo 🎄</h1>
-  <button id="openBtn">🎁 Apri</button>
-</div>
+  <!-- SCHERMATA INIZIALE -->
+  <div class="box" id="box">
+    <h1>Apri il tuo regalo 🎄</h1>
+    <button id="openBtn">🎁 Apri</button>
+  </div>
 
-<!-- VIDEO -->
-<div id="stage">
-  <video id="video" src="gif.gif.mp4" autoplay loop muted playsinline></video>
-</div>
+  <!-- STAGE (VIDEO + TESTI) -->
+  <div id="stage">
+    <video
+      id="video"
+      src="gif.gif.mp4"
+      autoplay
+      loop
+      muted
+      playsinline>
+    </video>
 
-<!-- TESTI -->
-<div class="overlay">
-  <div class="title">🎄 BUON NATALE 🎄</div>
-  <div class="subtitle">Speriamo aiuti con la sciatica 🌈🐎</div>
-</div>
+    <div class="overlay">
+      <div class="title">🎄 BUON NATALE 🎄</div>
+      <div class="subtitle">Speriamo aiuti con la sciatica 🌈🐎</div>
+    </div>
+  </div>
 
-<div id="hint">Tip: premi ESC per chiudere</div>
+  <div id="hint">Tip: premi ESC per chiudere</div>
 
-<script>
-const openBtn = document.getElementById("openBtn");
-const stage = document.getElementById("stage");
-const video = document.getElementById("video");
-const box = document.querySelector(".box");
-const hint = document.getElementById("hint");
+  <script>
+    const openBtn = document.getElementById("openBtn");
+    const stage = document.getElementById("stage");
+    const video = document.getElementById("video");
+    const box = document.getElementById("box");
+    const hint = document.getElementById("hint");
 
-openBtn.addEventListener("click", () => {
-  box.style.display = "none";
-  stage.style.display = "block";
-  hint.style.display = "block";
-  video.currentTime = 0;
-  video.play();
-});
+    openBtn.addEventListener("click", async () => {
+      box.style.display = "none";
+      stage.style.display = "block";
+      hint.style.display = "block";
 
-window.addEventListener("keydown", e => {
-  if(e.key === "Escape"){
-    stage.style.display = "none";
-    box.style.display = "flex";
-    hint.style.display = "none";
-    video.pause();
-  }
-});
-</script>
+      video.currentTime = 0;
+      try { await video.play(); } catch(e) {}
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        stage.style.display = "none";
+        box.style.display = "block";
+        hint.style.display = "none";
+        video.pause();
+      }
+    });
+  </script>
 
 </body>
 </html>
