@@ -15,19 +15,15 @@
       background:#0b0b0f;
       color:white;
       font-family:system-ui;
+      overflow:hidden;
     }
     .box{
       width:90%;
-      max-width:700px;
+      max-width:800px;
       text-align:center;
+      z-index:2;
     }
-    img,video{
-      width:100%;
-      border-radius:16px;
-      box-shadow:0 15px 40px rgba(0,0,0,.5);
-    }
-    h1{margin-bottom:16px}
-
+    h1{margin:0 0 16px}
     button{
       font-size:20px;
       padding:14px 28px;
@@ -37,31 +33,198 @@
       background:#e63946;
       color:white;
     }
+
+    /* Overlay show */
+    #stage{
+      position:fixed;
+      inset:0;
+      display:none;
+      overflow:hidden;
+      z-index:1;
+    }
+
+    /* Horse */
+    #horse{
+      position:absolute;
+      left:-220px;
+      top:55%;
+      transform:translateY(-50%);
+      font-size:120px;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,.5));
+      will-change: transform, left;
+    }
+
+    /* Rainbow fart trail */
+    .trail{
+      position:absolute;
+      height:70px;
+      border-radius:999px;
+      opacity:.95;
+      filter: blur(0.2px) saturate(1.2);
+      will-change: width, left, top, opacity;
+      background: linear-gradient(90deg,
+        #ff0000, #ff7a00, #ffd500, #00d64f, #00a6ff, #6a00ff, #ff00c8
+      );
+      box-shadow: 0 0 25px rgba(255,255,255,.12);
+    }
+
+    /* Screen fill layer */
+    #fill{
+      position:absolute;
+      inset:0;
+      opacity:0;
+      transition: opacity 1200ms ease;
+      background: linear-gradient(120deg,
+        rgba(255,0,0,.85),
+        rgba(255,122,0,.85),
+        rgba(255,213,0,.85),
+        rgba(0,214,79,.85),
+        rgba(0,166,255,.85),
+        rgba(106,0,255,.85),
+        rgba(255,0,200,.85)
+      );
+    }
+
+    /* Big message after fill */
+    #msg{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:24px;
+      font-size:34px;
+      font-weight:800;
+      color:#0b0b0f;
+      opacity:0;
+      transition: opacity 900ms ease;
+      text-shadow: 0 2px 0 rgba(255,255,255,.35);
+    }
+
+    /* Small close hint */
+    #hint{
+      position:fixed;
+      bottom:14px;
+      left:14px;
+      font-size:12px;
+      opacity:.55;
+      z-index:3;
+      display:none;
+    }
   </style>
 </head>
 
 <body>
   <div class="box">
     <h1>Apri il tuo regalo 🎄</h1>
-
     <button id="openBtn">🎁 Apri</button>
-
-    <div id="content" style="display:none; margin-top:20px">
-      <!-- SCEGLI SOLO UNO -->
-
-      <!-- GIF -->
-      <!-- <img src="INCOLLA_QUI_LA_GIF"> -->
-
-      <!-- VIDEO -->
-      <!-- <video src="INCOLLA_QUI_IL_VIDEO" autoplay loop muted playsinline controls></video> -->
-    </div>
   </div>
 
+  <div id="stage" aria-hidden="true">
+    <div id="fill"></div>
+    <div id="horse">🐎</div>
+    <div id="msg">BUON NATALE! 🌈💨<br>Sei stato “pony-zzato” 😄</div>
+  </div>
+
+  <div id="hint">Tip: premi ESC per chiudere</div>
+
   <script>
-    document.getElementById("openBtn").onclick = function(){
-      this.style.display = "none";
-      document.getElementById("content").style.display = "block";
+    const openBtn = document.getElementById("openBtn");
+    const stage = document.getElementById("stage");
+    const horse = document.getElementById("horse");
+    const fill = document.getElementById("fill");
+    const msg = document.getElementById("msg");
+    const hint = document.getElementById("hint");
+
+    let anim = null;
+    let t0 = null;
+
+    function makeTrail(x, y, w){
+      const d = document.createElement("div");
+      d.className = "trail";
+      d.style.left = (x - w) + "px";
+      d.style.top = (y - 35) + "px";
+      d.style.width = w + "px";
+      stage.appendChild(d);
+
+      // fade out and remove
+      setTimeout(() => { d.style.opacity = "0"; }, 250);
+      setTimeout(() => { d.remove(); }, 1100);
     }
+
+    function start(){
+      openBtn.style.display = "none";
+      stage.style.display = "block";
+      hint.style.display = "block";
+
+      // reset
+      fill.style.opacity = "0";
+      msg.style.opacity = "0";
+      horse.style.left = "-220px";
+      horse.style.top = "55%";
+
+      t0 = performance.now();
+
+      const W = () => window.innerWidth;
+      const H = () => window.innerHeight;
+
+      function frame(ts){
+        const t = (ts - t0) / 1000; // seconds
+
+        // Horse runs across screen in ~4.5s
+        const duration = 4.5;
+        const p = Math.min(1, t / duration);
+        const x = -220 + p * (W() + 440);
+
+        // little bobbing
+        const y = H()*0.55 + Math.sin(t*10)*10;
+
+        horse.style.left = x + "px";
+        horse.style.top = y + "px";
+
+        // create fart rainbow trail behind horse once it enters
+        if (x > -150 && p < 1){
+          const fartX = x - 40;    // behind horse
+          const fartY = y + 25;    // a bit lower 😄
+          const w = 120 + Math.random()*220;
+          makeTrail(fartX, fartY, w);
+        }
+
+        // As it approaches end, fill the whole screen
+        if (p > 0.72){
+          const alpha = Math.min(1, (p - 0.72) / 0.28);
+          fill.style.opacity = (alpha * 0.95).toFixed(3);
+        }
+
+        // End
+        if (p >= 1){
+          msg.style.opacity = "1";
+          cancelAnimationFrame(anim);
+          anim = null;
+          return;
+        }
+
+        anim = requestAnimationFrame(frame);
+      }
+
+      anim = requestAnimationFrame(frame);
+    }
+
+    openBtn.addEventListener("click", start);
+
+    // ESC to close / reset
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape"){
+        stage.style.display = "none";
+        hint.style.display = "none";
+        openBtn.style.display = "inline-block";
+        // cleanup trails
+        document.querySelectorAll(".trail").forEach(el => el.remove());
+        if (anim) cancelAnimationFrame(anim);
+        anim = null;
+      }
+    });
   </script>
 </body>
 </html>
